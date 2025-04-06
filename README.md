@@ -28,7 +28,7 @@ sudo sh ./install/mac.sh
 ```bash
 momoisay --help          # Show help
 momoisay <text>         # Simple Usage
-momoisay -a               # Animated Momoi with no text bubble (default version 1)
+momoisay -a                 # Animated Momoi with no text bubble (default version 1)
 ```
 
 ## File Structure
