@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <time.h>
 #include <unistd.h>
 #include <signal.h>
 #include <ncurses.h>
@@ -8,15 +9,19 @@
 #include <locale.h>
 #include "art/art.h"
 
-#define VERSION "1.0.0"
+#define VERSION "1.1.0"
 #define STATIC_V1_X 15
 #define STATIC_V1_Y 110
 #define STATIC_V1_RY 38
 #define ANIMATED_V1_X 28
-#define ANIMATED_V1_Y 186
+#define ANIMATED_V1_Y 187
 #define ANIMATED_V1_RY 62
+#define ANIMATED_V2_X 28
+#define ANIMATED_V2_Y 189
+#define ANIMATED_V2_RY 62
+#define ANIMATED_MY 189
 #define STATIC_VERSION 1
-#define ANIMATED_VERSION 1
+#define ANIMATED_VERSION 2
 #define MAX_LENGTH 30
 
 void init(){
@@ -36,6 +41,7 @@ void help(){
         "    -h, --help                          Display this help message\n"
         "    -v, --version                       Show version information\n"
         "    -a <version> <text>                 Cool animated version of cute Momoi (default version 1)\n"
+        "    -f <text>                           Freestyle Momoi animation\n"
         "    -s <version> <text>                 Display static version of cute Momoi (default version 1)\n"
         "    -l, --list                          List available versions for Momoi ASCII arts\n"
         "    <text>                              Text that cute Momoi will say!!! (default static version 1)\n"
@@ -44,7 +50,6 @@ void help(){
 
 void version(){
     printf("Momoisay v%s\n"
-           "Author: Monasm\n"
            "License: GPL-3.0 License\n",VERSION);
 }
 
@@ -60,6 +65,10 @@ int stoi(char *s){
         s++;
     }
     return num;
+}
+
+int randomizer(int min, int max){
+    return rand()%(max-min+1)+min;
 }
 
 int get_line(char *argv[],int start,int end){
@@ -108,9 +117,9 @@ int textlen(char *argv[],int start,int end){
     return length-1;
 }
 
-void construct_animate_v1(const char **art[],char *argv[],int *intervals,int frames,int x,int y,int ry,int length,int lines,int start,int end){
+void construct_v1(const char **art[],char *argv[],int *intervals,int frames,int x,int y,int ry,int length,int lines,int start,int end,int round){
     int current_frame = 0;
-    while(1){
+    while(round!=0){
         int cnt = 0,pt1=(x+1)/2,pt2=((x+1)/2)+1,pts=3+y,ptt=pts;
         char **canvas = create_canvas(x,y+length);
         clear();
@@ -165,12 +174,110 @@ void construct_animate_v1(const char **art[],char *argv[],int *intervals,int fra
         }
         print_canvas(canvas,x,px,py);
         usleep(intervals[current_frame++]);
-        current_frame=current_frame%frames;
         free_canvas(canvas,x);
+        if(current_frame==frames){
+            current_frame=0;
+            if(round>0)round--;
+        }
+    }
+}
+
+void construct_v2(const char **art[],char *argv[],int *intervals,int frames,int x,int y,int ry,int length,int lines,int start,int end,int reped,int repmin,int repmax,int round){
+    int current_frame = 0,replap = randomizer(repmin,repmax);
+    while(round!=0){
+        int cnt = 0,pt1=(x+1)/2,pt2=((x+1)/2)+1,pts=3+y,ptt=pts;
+        char **canvas = create_canvas(x,y+length);
+        clear();
+        int terminal_height = LINES;
+        int terminal_width = COLS;
+        int px = (terminal_width-ry-length)/2;
+        int py = (terminal_height-x)/2;
+        for(int i=0;i<x;i++){
+            int len = strlen(art[current_frame][i]);
+            for(int j=0;j<y+length;j++){
+                if(j<len){
+                    canvas[i][j]=art[current_frame][i][j];
+                }
+                else if(canvas[i][j]=='\0'){
+                    canvas[i][j]=' ';
+                }
+                if(!i&&length){
+                    if(j==y){
+                        canvas[pt1--][j]='/';canvas[pt2++][j]='\\';
+                    }
+                    else if(j-1==y){
+                        for(int cnt=0;cnt<lines/2;cnt++){
+                            canvas[pt1--][j]='|';canvas[pt2++][j]='|';
+                        }
+                        pt2--;
+                    }
+                    else if(j+1==y+length){
+                        for(int k=++pt1;k<=pt2;k++){
+                            canvas[k][j]='|';
+                        }
+                        pt1++;
+                    }
+                    else{
+                        canvas[pt1][j]='_';canvas[pt2][j]='_';
+                    }
+                }
+            }
+            if(!cnt&&(length||lines)){
+                for(int j=start;j<end;j++){
+                    char *str = argv[j];
+                    while(*str!='\0'){
+                        if(cnt>=MAX_LENGTH){
+                            pt1++;pts=ptt;cnt=0;
+                        }
+                        canvas[pt1][pts++] = *str;cnt++;str++;
+                    }
+                    if(cnt>MAX_LENGTH)continue;
+                    canvas[pt1][pts++] = ' ';cnt++;
+                }
+            }
+            cnt = 1;
+        }
+        print_canvas(canvas,x,px,py);
+        usleep(intervals[current_frame]);
+        if(current_frame==reped){
+            if(replap==0){
+                replap=randomizer(repmin,repmax);
+                current_frame++;
+            }
+            else{
+                current_frame=0;
+                replap--;
+            }
+        }
+        else{
+            current_frame++;
+        }
+        free_canvas(canvas,x);
+        if(current_frame==frames){
+            current_frame=0;
+            if(round>0)round--;
+        }
+    }
+}
+
+void construct_freestyle(char *argv[],int length,int lines,int start,int end){
+    while(1){
+        int select = randomizer(0,ANIMATED_VERSION-1);
+        if(select==0){
+            int frame[5] = {150000,75000,150000,150000,75000};
+            construct_v1(momoi_animated_v1,argv,frame,5,ANIMATED_V1_X,ANIMATED_V1_Y,ANIMATED_V1_RY,length,lines,start,end,randomizer(3,5));
+        }
+        else if(select==1){
+            int frame[7] = {70000,70000,70000,1500000,70000,70000,70000};
+            construct_v2(momoi_animated_v2,argv,frame,7,ANIMATED_V2_X,ANIMATED_V2_Y,ANIMATED_V2_RY,length,lines,start,end,1,5,13,randomizer(1,3));
+            
+        }
     }
 }
 
 int main(int argc,char *argv[]){
+    srand(time(NULL));
+
     int option;
     int mode = 0;
     int ctl = 0;
@@ -185,7 +292,7 @@ int main(int argc,char *argv[]){
         {NULL, 0, NULL, 0}
     };
 
-    while((option = getopt_long(argc,argv,"hvla::s::",long_options,NULL))!=-1){
+    while((option = getopt_long(argc,argv,"hvla::s::f::",long_options,NULL))!=-1){
         switch(option){
             case 'h':
                 help();
@@ -195,10 +302,10 @@ int main(int argc,char *argv[]){
                 return 0;
             case 'l':
                 printf("static: ");
-                for(int i=1;i<=STATIC_VERSION;i++){printf("%d",i);}
+                for(int i=1;i<=STATIC_VERSION;i++){printf("%d ",i);}
                 printf("\n");
                 printf("animated: ");
-                for(int i=1;i<=ANIMATED_VERSION;i++){printf("%d",i);}
+                for(int i=1;i<=ANIMATED_VERSION;i++){printf("%d ",i);}
                 printf("\n");
                 return 0;
             case 'a':
@@ -223,27 +330,51 @@ int main(int argc,char *argv[]){
                     static_version = stoi(optarg);
                 }
                 break;
+            case 'f':
+                mode = 2;
+                if(!ctl)argctl = 0;
+                if(argc<=2)break;
+                optarg = argv[2];
+                break;
             default:
                 help();
                 return 0;
         }
     }
     init();
-    if(mode){
+    if(mode==2){
+        int length = 0,lines = 0;
+        length = 5+textlen(argv,optind+argctl,argc);
+        lines = get_line(argv,optind+argctl,argc);
+        if(length <= 5)length = 0;
+        if(lines<=10){
+            if(lines&1)lines++;
+            construct_freestyle(argv,length,lines,optind+argctl,argc);
+            return 0;
+        }
+    }
+    else if(mode==1){
+        int length = 0,lines = 0;
+        length = 5+textlen(argv,optind+argctl,argc);
+        lines = get_line(argv,optind+argctl,argc);
         if(animated_version==1){
-            int length = 0,lines = 0;
-            length = 5+textlen(argv,optind+argctl,argc);
-            lines = get_line(argv,optind+argctl,argc);
             if(length <= 5)length = 0;
             if(lines<=30){
                 if(lines&1)lines++;
-                int frame[5] = {150000,75000,150000,75000,150000};
-                construct_animate_v1(momoi_animated_v1,argv,frame,5,ANIMATED_V1_X,ANIMATED_V1_Y,ANIMATED_V1_RY,length,lines,optind+argctl,argc);
-                return 0;
+                int frame[5] = {150000,75000,150000,150000,75000};
+                construct_v1(momoi_animated_v1,argv,frame,5,ANIMATED_V1_X,ANIMATED_V1_Y,ANIMATED_V1_RY,length,lines,optind+argctl,argc,-1);
+            }
+        }
+        else if(animated_version==2){
+            if(length <= 5)length = 0;
+            if(lines<=30){
+                if(lines&1)lines++;
+                int frame[7] = {70000,70000,70000,1500000,70000,70000,70000};
+                construct_v2(momoi_animated_v2,argv,frame,7,ANIMATED_V2_X,ANIMATED_V2_Y,ANIMATED_V2_RY,length,lines,optind+argctl,argc,1,5,13,-1);
             }
         }
     }
-    else{
+    else if(mode==0){
         if(static_version==1){
             int length = 0,lines = 0;
             length = 5+textlen(argv,optind+argctl,argc);
@@ -252,7 +383,7 @@ int main(int argc,char *argv[]){
             if(lines<=10){
                 if(lines&1)lines++;
                 int frame[1] = {75000};
-                construct_animate_v1(momoi_static_v1,argv,frame,1,STATIC_V1_X,STATIC_V1_Y,STATIC_V1_RY,length,lines,optind+argctl,argc);
+                construct_v1(momoi_static_v1,argv,frame,1,STATIC_V1_X,STATIC_V1_Y,STATIC_V1_RY,length,lines,optind+argctl,argc,-1);
                 return 0;
             }
         }
