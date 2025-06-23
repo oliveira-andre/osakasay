@@ -1,3 +1,0 @@
-momoisay v1.0.0
-Built: 2025-04-06
-Target: MacOS ARM64
