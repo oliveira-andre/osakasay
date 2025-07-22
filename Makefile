@@ -1,6 +1,6 @@
 CC = gcc
 CFLAGS = -O2 -Wall
-LDFLAGS = -lncurses
+LDFLAGS = -lncursesw
 SOURCES = src/momoisay.c src/art/art.c
 OUTPUT = momoisay
 

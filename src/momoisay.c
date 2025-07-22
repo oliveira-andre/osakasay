@@ -9,19 +9,22 @@
 #include <locale.h>
 #include "art/art.h"
 
-#define VERSION "1.1.0"
+#define VERSION "1.1.1"
 #define STATIC_V1_X 15
 #define STATIC_V1_Y 110
 #define STATIC_V1_RY 38
-#define ANIMATED_V1_X 28
+#define ANIMATED_V1_X 30
 #define ANIMATED_V1_Y 187
 #define ANIMATED_V1_RY 62
-#define ANIMATED_V2_X 28
+#define ANIMATED_V2_X 30
 #define ANIMATED_V2_Y 189
 #define ANIMATED_V2_RY 62
+#define ANIMATED_V3_X 30
+#define ANIMATED_V3_Y 189
+#define ANIMATED_V3_RY 62
 #define ANIMATED_MY 189
 #define STATIC_VERSION 1
-#define ANIMATED_VERSION 2
+#define ANIMATED_VERSION 3
 #define MAX_LENGTH 30
 
 void init(){
@@ -69,6 +72,10 @@ int stoi(char *s){
 
 int randomizer(int min, int max){
     return rand()%(max-min+1)+min;
+}
+
+int randint(const int arr[],int size){
+    return arr[rand()%size];
 }
 
 int get_line(char *argv[],int start,int end){
@@ -261,16 +268,22 @@ void construct_v2(const char **art[],char *argv[],int *intervals,int frames,int 
 }
 
 void construct_freestyle(char *argv[],int length,int lines,int start,int end){
+    int select = randomizer(0,ANIMATED_VERSION-1);
     while(1){
-        int select = randomizer(0,ANIMATED_VERSION-1);
         if(select==0){
             int frame[5] = {150000,75000,150000,150000,75000};
             construct_v1(momoi_animated_v1,argv,frame,5,ANIMATED_V1_X,ANIMATED_V1_Y,ANIMATED_V1_RY,length,lines,start,end,randomizer(3,5));
+            select=2;
         }
         else if(select==1){
             int frame[7] = {70000,70000,70000,1500000,70000,70000,70000};
             construct_v2(momoi_animated_v2,argv,frame,7,ANIMATED_V2_X,ANIMATED_V2_Y,ANIMATED_V2_RY,length,lines,start,end,1,5,13,randomizer(1,3));
-            
+            select=randint((int []){0,2},2);
+        }
+        else if(select==2){
+            int frame[8]={70000,70000,70000,70000,70000,70000,70000,70000};
+            construct_v1(momoi_animated_v3,argv,frame,8,ANIMATED_V3_X,ANIMATED_V3_Y,ANIMATED_V3_RY,length,lines,start,end,randomizer(3,5));
+            select=randint((int []){1},1);
         }
     }
 }
@@ -372,6 +385,15 @@ int main(int argc,char *argv[]){
                 int frame[7] = {70000,70000,70000,1500000,70000,70000,70000};
                 construct_v2(momoi_animated_v2,argv,frame,7,ANIMATED_V2_X,ANIMATED_V2_Y,ANIMATED_V2_RY,length,lines,optind+argctl,argc,1,5,13,-1);
             }
+        }
+        else if(animated_version==3){
+            if(length<=5)length=0;
+            if(lines<=30){
+                if(lines&1)lines++;
+                int frame[8]={70000,70000,70000,70000,70000,70000,70000,70000};
+                construct_v1(momoi_animated_v3,argv,frame,8,ANIMATED_V3_X,ANIMATED_V3_Y,ANIMATED_V3_RY,length,lines,optind+argctl,argc,-1);
+            }
+
         }
     }
     else if(mode==0){
