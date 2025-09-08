@@ -1,5 +1,5 @@
-# momoisay
-*A CLI program written in C featuring talking Saiba Momoi from Blue Archive!!!*
+# Osakasay
+*A CLI program written in C featuring talking Saiba Ayumi "Osaka" Kasuga from Azumanga Daioh
 
 [![License](https://img.shields.io/badge/license-GPL--3.0-blue)](LICENSE)
 [![Version](https://img.shields.io/badge/version-1.1.1-green)]()
@@ -8,14 +8,13 @@
 
 ## Preview
 
-Example of animated usage
+Example of usage
 
 ![Demo](preview.gif)
 
 ## Features
-- Talking ASCII art of Momoi
-- Animated ASCII art of Momoi
-- Freestyle changing animation of Momoi
+- Talking ASCII art of Osaka
+- Freestyle changing animation of Osaka
 
 ## Installation
 
@@ -24,30 +23,30 @@ Sometimes the precompiled binaries are not the latest version as the release. If
 
 ### Linux
 ```bash
-git clone https://github.com/Mon4sm/Momoisay.git
-cd Momoisay
+git clone https://github.com/oliveira-andre/osakasay.git
+cd Osakasay
 sudo sh ./install/linux.sh
 ```
 ### MacOS
 ```bash
-git clone https://github.com/Mon4sm/Momoisay.git
-cd Momoisay
+git clone https://github.com/oliveira-andre/osakasay.git
+cd Osakasay
 sudo sh ./install/mac.sh
 ```
 ### Build from source (Latest Version)
 ```bash
-git clone https://github.com/Mon4sm/Momoisay.git
-cd Momoisay
+git clone https://github.com/oliveira-andre/osakasay.git
+cd Osakasay
 make
 ```
 
 ## Usage
 ```bash
-momoisay --help         # Show help
-momoisay <text>         # Simple Usage
-momoisay -a             # Animated Momoi with no text bubble (default version 1)
-momoisay -a <version>   # Animated Momoi with no text bubble (default version 1)
-momoisay -f             # Freestyle animations (This is pretty cool for ricing)
+osakasay --help         # Show help
+osakasay <text>         # Simple Usage
+osakasay -a             # Animated Osaka with no text bubble (default version 1)
+osakasay -a <version>   # Animated Osaka with no text bubble (default version 1)
+osakasay -f             # Freestyle animations (This is pretty cool for ricing)
 ```
 
 ## File Structure
@@ -56,10 +55,10 @@ repo/
 ├── bin/ 
 │    ├── linux/
 │    │   ├── version.txt
-│    │   └── momoisay
+│    │   └── osakasay
 │    └── mac/
 │        ├── version.txt 
-│        └── momoisay
+│        └── osakasay
 ├── install/
 │    ├── mac.sh
 │    └── linux.sh
@@ -67,7 +66,7 @@ repo/
 │    ├── art/
 │    │   ├── art.c
 │    │   └── art.h
-│    └── momoisay.c
+│    └── osakasay.c
 ├── Makefile
 ├── LICENSE
 ├── preview.gif

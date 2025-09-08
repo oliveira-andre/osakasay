@@ -9,20 +9,16 @@
 #include <locale.h>
 #include "art/art.h"
 
-#define VERSION "1.1.1"
-#define STATIC_V1_X 15
+#define VERSION "1.0.0"
+#define STATIC_V1_X 32
 #define STATIC_V1_Y 110
 #define STATIC_V1_RY 38
-#define ANIMATED_V1_X 30
-#define ANIMATED_V1_Y 187
-#define ANIMATED_V1_RY 62
-#define ANIMATED_V2_X 30
-#define ANIMATED_V2_Y 189
-#define ANIMATED_V2_RY 62
-#define ANIMATED_V3_X 30
-#define ANIMATED_V3_Y 189
-#define ANIMATED_V3_RY 62
-#define ANIMATED_MY 189
+#define STATIC_V2_X 35
+#define STATIC_V2_Y 110
+#define STATIC_V2_RY 10
+#define STATIC_V3_X 30
+#define STATIC_V3_Y 189
+#define STATIC_V3_RY 62
 #define STATIC_VERSION 1
 #define ANIMATED_VERSION 3
 #define MAX_LENGTH 30
@@ -39,20 +35,20 @@ void init(){
 
 void help(){
     printf(
-        "Make cute Momoi from Blue Archive say something!!!\n"
+        "Make cute Osaka from Azumanga Daioh say something!!!\n"
         "operations:\n"
         "    -h, --help                          Display this help message\n"
         "    -v, --version                       Show version information\n"
-        "    -a <version> <text>                 Cool animated version of cute Momoi (default version 1)\n"
-        "    -f <text>                           Freestyle Momoi animation\n"
-        "    -s <version> <text>                 Display static version of cute Momoi (default version 1)\n"
-        "    -l, --list                          List available versions for Momoi ASCII arts\n"
-        "    <text>                              Text that cute Momoi will say!!! (default static version 1)\n"
+        "    -a <version> <text>                 Cool animated version of cute Osaka (default version 1)\n"
+        "    -f <text>                           Freestyle Osaka animation\n"
+        "    -s <version> <text>                 Display static version of cute Osaka (default version 1)\n"
+        "    -l, --list                          List available versions for Osaka ASCII arts\n"
+        "    <text>                              Text that cute Osaka will say!!! (default static version 1)\n"
     );
 }
 
 void version(){
-    printf("Momoisay v%s\n"
+    printf("Osakasay v%s\n"
            "License: GPL-3.0 License\n",VERSION);
 }
 
@@ -124,15 +120,14 @@ int textlen(char *argv[],int start,int end){
     return length-1;
 }
 
-void construct_v1(const char **art[],char *argv[],int *intervals,int frames,int x,int y,int ry,int length,int lines,int start,int end,int round){
-    int current_frame = 0;
+void construct_v1(const char **art[],char *argv[],int *intervals,int frames,int x,int y,int ry,int length,int lines,int start,int end,int round, int current_frame){
     while(round!=0){
         int cnt = 0,pt1=(x+1)/2,pt2=((x+1)/2)+1,pts=3+y,ptt=pts;
         char **canvas = create_canvas(x,y+length);
         clear();
         int terminal_height = LINES;
         int terminal_width = COLS;
-        int px = (terminal_width-ry-length)/2;
+        int px = (terminal_width-ry-length-50)/2;
         int py = (terminal_height-x)/2;
         for(int i=0;i<x;i++){
             int len = strlen(art[current_frame][i]);
@@ -189,102 +184,29 @@ void construct_v1(const char **art[],char *argv[],int *intervals,int frames,int 
     }
 }
 
-void construct_v2(const char **art[],char *argv[],int *intervals,int frames,int x,int y,int ry,int length,int lines,int start,int end,int reped,int repmin,int repmax,int round){
-    int current_frame = 0,replap = randomizer(repmin,repmax);
-    while(round!=0){
-        int cnt = 0,pt1=(x+1)/2,pt2=((x+1)/2)+1,pts=3+y,ptt=pts;
-        char **canvas = create_canvas(x,y+length);
-        clear();
-        int terminal_height = LINES;
-        int terminal_width = COLS;
-        int px = (terminal_width-ry-length)/2;
-        int py = (terminal_height-x)/2;
-        for(int i=0;i<x;i++){
-            int len = strlen(art[current_frame][i]);
-            for(int j=0;j<y+length;j++){
-                if(j<len){
-                    canvas[i][j]=art[current_frame][i][j];
-                }
-                else if(canvas[i][j]=='\0'){
-                    canvas[i][j]=' ';
-                }
-                if(!i&&length){
-                    if(j==y){
-                        canvas[pt1--][j]='/';canvas[pt2++][j]='\\';
-                    }
-                    else if(j-1==y){
-                        for(int cnt=0;cnt<lines/2;cnt++){
-                            canvas[pt1--][j]='|';canvas[pt2++][j]='|';
-                        }
-                        pt2--;
-                    }
-                    else if(j+1==y+length){
-                        for(int k=++pt1;k<=pt2;k++){
-                            canvas[k][j]='|';
-                        }
-                        pt1++;
-                    }
-                    else{
-                        canvas[pt1][j]='_';canvas[pt2][j]='_';
-                    }
-                }
-            }
-            if(!cnt&&(length||lines)){
-                for(int j=start;j<end;j++){
-                    char *str = argv[j];
-                    while(*str!='\0'){
-                        if(cnt>=MAX_LENGTH){
-                            pt1++;pts=ptt;cnt=0;
-                        }
-                        canvas[pt1][pts++] = *str;cnt++;str++;
-                    }
-                    if(cnt>MAX_LENGTH)continue;
-                    canvas[pt1][pts++] = ' ';cnt++;
-                }
-            }
-            cnt = 1;
-        }
-        print_canvas(canvas,x,px,py);
-        usleep(intervals[current_frame]);
-        if(current_frame==reped){
-            if(replap==0){
-                replap=randomizer(repmin,repmax);
-                current_frame++;
-            }
-            else{
-                current_frame=0;
-                replap--;
-            }
-        }
-        else{
-            current_frame++;
-        }
-        free_canvas(canvas,x);
-        if(current_frame==frames){
-            current_frame=0;
-            if(round>0)round--;
-        }
-    }
-}
 
 void construct_freestyle(char *argv[],int length,int lines,int start,int end){
     int select = randomizer(0,ANIMATED_VERSION-1);
+    int x,y,ry;
     while(1){
+        int frame[1] = {70000};
         if(select==0){
-            int frame[5] = {150000,75000,150000,150000,75000};
-            construct_v1(momoi_animated_v1,argv,frame,5,ANIMATED_V1_X,ANIMATED_V1_Y,ANIMATED_V1_RY,length,lines,start,end,randomizer(3,5));
-            select=2;
+            x = STATIC_V1_X;
+            y = STATIC_V1_Y;
+            ry = STATIC_V1_RY;
         }
         else if(select==1){
-            int frame[7] = {70000,70000,70000,1500000,70000,70000,70000};
-            construct_v2(momoi_animated_v2,argv,frame,7,ANIMATED_V2_X,ANIMATED_V2_Y,ANIMATED_V2_RY,length,lines,start,end,1,5,13,randomizer(1,3));
-            select=randint((int []){0,2},2);
+            x = STATIC_V2_X;
+            y = STATIC_V2_Y;
+            ry = STATIC_V2_RY;
         }
         else if(select==2){
-            int frame[8]={70000,70000,70000,70000,70000,70000,70000,70000};
-            construct_v1(momoi_animated_v3,argv,frame,8,ANIMATED_V3_X,ANIMATED_V3_Y,ANIMATED_V3_RY,length,lines,start,end,randomizer(3,5));
-            select=randint((int []){1},1);
+            x = STATIC_V3_X;
+            y = STATIC_V3_Y;
+            ry = STATIC_V3_RY;
         }
+        construct_v1(osaka_static_v1,argv,frame,1,x,y,ry,length,lines,start,end,-1, select);
+        select = randomizer(0,ANIMATED_VERSION-1);
     }
 }
 
@@ -374,24 +296,24 @@ int main(int argc,char *argv[]){
             if(length <= 5)length = 0;
             if(lines<=30){
                 if(lines&1)lines++;
-                int frame[5] = {150000,75000,150000,150000,75000};
-                construct_v1(momoi_animated_v1,argv,frame,5,ANIMATED_V1_X,ANIMATED_V1_Y,ANIMATED_V1_RY,length,lines,optind+argctl,argc,-1);
+                int frame[1] = {70000};
+                construct_v1(osaka_static_v1,argv,frame,1,STATIC_V1_X,STATIC_V1_Y,STATIC_V1_RY,length,lines,optind+argctl,argc,-1, 0);
             }
         }
         else if(animated_version==2){
             if(length <= 5)length = 0;
             if(lines<=30){
                 if(lines&1)lines++;
-                int frame[7] = {70000,70000,70000,1500000,70000,70000,70000};
-                construct_v2(momoi_animated_v2,argv,frame,7,ANIMATED_V2_X,ANIMATED_V2_Y,ANIMATED_V2_RY,length,lines,optind+argctl,argc,1,5,13,-1);
+                int frame[1] = {70000};
+                construct_v1(osaka_static_v1,argv,frame,1,STATIC_V2_X,STATIC_V2_Y,STATIC_V2_RY,length,lines,optind+argctl,argc,-1, 2);
             }
         }
         else if(animated_version==3){
             if(length<=5)length=0;
             if(lines<=30){
                 if(lines&1)lines++;
-                int frame[8]={70000,70000,70000,70000,70000,70000,70000,70000};
-                construct_v1(momoi_animated_v3,argv,frame,8,ANIMATED_V3_X,ANIMATED_V3_Y,ANIMATED_V3_RY,length,lines,optind+argctl,argc,-1);
+                int frame[1]={70000};
+                construct_v1(osaka_static_v1,argv,frame,1,STATIC_V3_X,STATIC_V3_Y,STATIC_V3_RY,length,lines,optind+argctl,argc,-1, 1);
             }
 
         }
@@ -404,8 +326,8 @@ int main(int argc,char *argv[]){
             if(length <= 5)length = 0;
             if(lines<=10){
                 if(lines&1)lines++;
-                int frame[1] = {75000};
-                construct_v1(momoi_static_v1,argv,frame,1,STATIC_V1_X,STATIC_V1_Y,STATIC_V1_RY,length,lines,optind+argctl,argc,-1);
+                int frame[1] = {70000}; // SHOW 1 FRAME FOR 0.07 seconds  (if you have more place the expected number)
+                construct_v1(osaka_static_v1,argv,frame,1,STATIC_V1_X,STATIC_V1_Y,STATIC_V1_RY,length,lines,optind+argctl,argc,-1, 0);
                 return 0;
             }
         }
