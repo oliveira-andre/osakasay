@@ -17,10 +17,10 @@
 #define STATIC_V2_Y 110
 #define STATIC_V2_RY 10
 #define STATIC_V3_X 30
-#define STATIC_V3_Y 189
-#define STATIC_V3_RY 62
+#define STATIC_V3_Y 110
+#define STATIC_V3_RY 30
 #define STATIC_VERSION 1
-#define ANIMATED_VERSION 3
+#define ANIMATED_VERSION 4
 #define MAX_LENGTH 30
 
 void init(){
